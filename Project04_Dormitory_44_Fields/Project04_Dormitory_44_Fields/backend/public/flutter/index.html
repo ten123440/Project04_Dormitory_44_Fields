@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dormitory Hub - ระบบบริหารจัดการหอพักนักศึกษา (Flutter Web Client)</title>
+    <!-- Google Fonts & Material Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Standard Flutter Material 3 Colors */
+            --primary: #4338ca; /* Colors.indigo[700] */
+            --primary-container: #e0e7ff;
+            --secondary: #0284c7; /* Colors.lightBlue[600] */
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --surface-variant: #f1f5f9;
+            --outline: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --elevation-2: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --elevation-3: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Flutter Top Navigation Bar */
+        .flutter-app-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--outline);
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--elevation-1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(67, 56, 202, 0.3);
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: var(--surface-variant);
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-container);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .auth-widget {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-demo {
+            background: #ffffff;
+            border: 1px solid var(--outline);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-demo:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-container);
+        }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Container & Views */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards and Elements */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline);
+            padding: 20px;
+            box-shadow: var(--elevation-1);
+            margin-bottom: 20px;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
+            color: #ffffff;
+            padding: 32px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            box-shadow: var(--elevation-2);
+        }
+
+        .hero-banner h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero-banner p {
+            font-size: 14px;
+            color: #c7d2fe;
+            max-width: 700px;
+            line-height: 1.5;
+        }
+
+        /* Search input box */
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            max-width: 540px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--outline);
+            font-size: 14px;
+            outline: none;
+            color: #0f172a;
+        }
+
+        .search-box button {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Room Grid */
+        .grid-rooms {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .room-card {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--elevation-1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-3);
+        }
+
+        .room-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--surface-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .badge-status {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-available { background: #dcfce7; color: #15803d; }
+        .status-occupied { background: #fee2e2; color: #b91c1c; }
+        .status-maintenance { background: #fef3c7; color: #b45309; }
+
+        .room-body {
+            padding: 16px;
+            font-size: 13px;
+        }
+
+        .room-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover { background: #3730a3; }
+        .btn-action:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+        /* Stats Row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: var(--surface-variant);
+            color: var(--text-secondary);
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--outline);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tr:hover td {
+            background: #fafafa;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            width: 90%;
+            max-width: 480px;
+            padding: 24px;
+            box-shadow: var(--elevation-3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--outline);
+            font-size: 13px;
+            outline: none;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 13px;
+            box-shadow: var(--elevation-3);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .flutter-app-bar {
+                flex-direction: column;
+                height: auto;
+                padding: 12px;
+                gap: 12px;
+            }
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AppBar -->
+    <header class="flutter-app-bar">
+        <div class="app-brand" onclick="switchTab('rooms')">
+            <div class="brand-icon">
+                <span class="material-icons">apartment</span>
+            </div>
+            <div>
+                <div class="brand-title">Dormitory Hub (Flutter Web)</div>
+                <div class="brand-subtitle">ระบบบริหารจัดการหอพักนักศึกษา</div>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" id="tabRoomsBtn" onclick="switchTab('rooms')">
+                <span class="material-icons" style="font-size:18px;">meeting_room</span> ค้นหาห้องพัก
+            </button>
+            <button class="tab-btn" id="tabTrackBtn" onclick="switchTab('track')">
+                <span class="material-icons" style="font-size:18px;">search</span> ติดตามสัญญา
+            </button>
+            <button class="tab-btn" id="tabMyBookingsBtn" onclick="switchTab('my-bookings')">
+                <span class="material-icons" style="font-size:18px;">receipt_long</span> สัญญาของฉัน
+            </button>
+            <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">
+                <span class="material-icons" style="font-size:18px;">dashboard</span> ผู้ดูแลหอพัก
+            </button>
+        </nav>
+
+        <div class="auth-widget" id="authWidget">
+            <!-- Dynamic User info or Login buttons -->
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- View 1: Rooms & Booking -->
+        <section id="viewRooms" class="view-section active">
+            <div class="hero-banner">
+                <h1>ยินดีต้อนรับสู่ Dormitory Hub (Flutter Client)</h1>
+                <p>เลือกดูห้องพักนักศึกษา เช็กสถานะห้องว่าง และยื่นจองห้องพักออนไลน์ได้สะดวกรวดเร็ว เชื่อมต่อ REST API แบบ Real-time</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="card" style="padding: 14px 20px;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">ตัวกรองห้องพัก:</span>
+                    <select id="filterType" onchange="loadRooms()" style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--outline); font-size: 12px;">
+                        <option value="">ทุกประเภทห้อง</option>
+                    </select>
+                    <select id="filterStatus" onchange="loadRooms()" style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--outline); font-size: 12px;">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="available">ว่าง (Available)</option>
+                        <option value="occupied">มีผู้พัก (Occupied)</option>
+                        <option value="maintenance">ปิดปรับปรุง (Maintenance)</option>
+                    </select>
+                    <button onclick="loadRooms()" class="btn-demo" style="margin-left: auto;">
+                        <span class="material-icons" style="font-size: 14px;">refresh</span> รีเฟรชข้อมูล
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rooms Grid -->
+            <div class="grid-rooms" id="roomsContainer">
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary); grid-column: 1/-1;">กำลังโหลดข้อมูลห้องพัก...</div>
+            </div>
+        </section>
+
+        <!-- View 2: Track Contract -->
+        <section id="viewTrack" class="view-section">
+            <div class="card">
+                <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">ค้นหาและติดตามสัญญาเช่า (Contract Tracking)</h2>
+                <p style="font-size: 13px; color: var(--text-secondary);">กรอกรหัสสัญญา (Tracking Code) เช่น DORM-2026001 เพื่อตรวจสอบข้อมูลผู้เช่าและสถานะห้องพัก</p>
+
+                <div class="search-box">
+                    <input type="text" id="trackInput" placeholder="กรอกรหัสสัญญา เช่น DORM-2026001">
+                    <button onclick="searchContract()">
+                        <span class="material-icons">search</span> ค้นหา
+                    </button>
+                </div>
+
+                <div style="margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                    <span>รหัสสัญญาตัวอย่าง:</span>
+                    <a href="javascript:void(0)" onclick="quickTrack('DORM-2026001')" style="color: var(--primary); font-weight: 600; margin: 0 4px;">DORM-2026001</a>,
+                    <a href="javascript:void(0)" onclick="quickTrack('DORM-2026002')" style="color: var(--primary); font-weight: 600; margin: 0 4px;">DORM-2026002</a>,
+                    <a href="javascript:void(0)" onclick="quickTrack('DORM-2026003')" style="color: var(--primary); font-weight: 600; margin: 0 4px;">DORM-2026003</a>
+                </div>
+            </div>
+
+            <div id="trackResultContainer"></div>
+        </section>
+
+        <!-- View 3: My Bookings -->
+        <section id="viewMyBookings" class="view-section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="font-size: 18px; font-weight: 700;">สัญญาเช่าและคำขอจองของฉัน</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary);">ประวัติการยื่นจองและสัญญาเช่าห้องพักของบัญชีปัจจุบัน</p>
+                    </div>
+                    <button onclick="loadMyBookings()" class="btn-demo">
+                        <span class="material-icons" style="font-size: 14px;">refresh</span> รีเฟรช
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัสสัญญา</th>
+                                <th>ห้องพัก</th>
+                                <th>ประเภทห้อง</th>
+                                <th>อัตราค่าเช่า</th>
+                                <th>วันที่เริ่มเข้าพัก</th>
+                                <th>สถานะสัญญา</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myBookingsTableBody">
+                            <tr><td colspan="6" style="text-align:center; padding: 24px; color: var(--text-secondary);">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 4: Admin Dashboard -->
+        <section id="viewAdmin" class="view-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 700;">แผงควบคุมผู้ดูแลหอพัก (Admin Console)</h2>
+                    <p style="font-size: 13px; color: var(--text-secondary);">จัดการสถานะห้องพักและอนุมัติสัญญาเช่านักศึกษา</p>
+                </div>
+                <button onclick="openAddRoomModal()" class="btn-action" style="width: auto; padding: 8px 16px;">
+                    <span class="material-icons" style="font-size: 16px;">add_home</span> เพิ่มห้องพักใหม่
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="adminStatsGrid">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Bookings Management -->
+            <div class="card">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 14px;">รายการสัญญาและการจองล่าสุด</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>รหัสสัญญา</th>
+                                <th>ห้อง</th>
+                                <th>ผู้เช่า</th>
+                                <th>เบอร์โทร</th>
+                                <th>เริ่มเข้าพัก</th>
+                                <th>สถานะ</th>
+                                <th>เปลี่ยนสถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBookingsTableBody">
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Book Room Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 16px; font-weight: 700;">ยืนยันการจองห้องพัก</h3>
+                <span class="material-icons" style="cursor: pointer;" onclick="closeModal('bookingModal')">close</span>
+            </div>
+            <div style="background: var(--surface-variant); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px;">
+                <div><strong>ห้อง:</strong> <span id="modalRoomNum">-</span></div>
+                <div><strong>ประเภท:</strong> <span id="modalRoomType">-</span></div>
+                <div><strong>ค่าเช่า:</strong> <span id="modalRoomRate" style="color: var(--primary); font-weight: 700;">-</span> บาท/เดือน</div>
+            </div>
+            <div class="form-group">
+                <label>วันที่เริ่มเข้าพัก</label>
+                <input type="date" id="bookCheckInDate">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button onclick="closeModal('bookingModal')" class="btn-demo">ยกเลิก</button>
+                <button onclick="submitBooking()" class="btn-action" style="width: auto; padding: 8px 20px;">ยืนยันการจอง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Room Modal -->
+    <div class="modal-overlay" id="addRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 16px; font-weight: 700;">เพิ่มห้องพักใหม่</h3>
+                <span class="material-icons" style="cursor: pointer;" onclick="closeModal('addRoomModal')">close</span>
+            </div>
+            <div class="form-group">
+                <label>หมายเลขห้อง (เช่น 105, 204)</label>
+                <input type="text" id="addRoomNum" placeholder="105">
+            </div>
+            <div class="form-group">
+                <label>ประเภทห้องพัก</label>
+                <select id="addRoomTypeId"></select>
+            </div>
+            <div class="form-group">
+                <label>ชั้นที่ตั้ง</label>
+                <input type="number" id="addRoomFloor" value="1" min="1" max="20">
+            </div>
+            <div class="form-group">
+                <label>สถานะเริ่มต้น</label>
+                <select id="addRoomStatus">
+                    <option value="available">ว่าง (Available)</option>
+                    <option value="occupied">มีผู้พัก (Occupied)</option>
+                    <option value="maintenance">ปิดปรับปรุง (Maintenance)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>รายละเอียดสิ่งอำนวยความสะดวก</label>
+                <textarea id="addRoomDesc" rows="3" placeholder="ระบุสิ่งอำนวยความสะดวก..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                <button onclick="closeModal('addRoomModal')" class="btn-demo">ยกเลิก</button>
+                <button onclick="submitAddRoom()" class="btn-action" style="width: auto; padding: 8px 20px;">บันทึกห้องพัก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="material-icons" id="toastIcon">info</span>
+        <span id="toastMsg">แจ้งเตือน</span>
+    </div>
+
+    <!-- JavaScript Client Logic -->
+    <script>
+        const API_BASE = '/api';
+        let currentUser = null;
+        let currentToken = localStorage.getItem('dorm_token') || '';
+        let roomTypesCache = [];
+        let selectedRoomForBooking = null;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('bookCheckInDate').value = new Date().toISOString().split('T')[0];
+            await checkAuth();
+            await loadRoomTypes();
+            await loadRooms();
+        });
+
+        // Toast Helper
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            document.getElementById('toastIcon').innerText = isSuccess ? 'check_circle' : 'error';
+            toast.style.background = isSuccess ? '#166534' : '#991b1b';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            if (tabId === 'rooms') {
+                document.getElementById('viewRooms').classList.add('active');
+                document.getElementById('tabRoomsBtn').classList.add('active');
+                loadRooms();
+            } else if (tabId === 'track') {
+                document.getElementById('viewTrack').classList.add('active');
+                document.getElementById('tabTrackBtn').classList.add('active');
+            } else if (tabId === 'my-bookings') {
+                document.getElementById('viewMyBookings').classList.add('active');
+                document.getElementById('tabMyBookingsBtn').classList.add('active');
+                loadMyBookings();
+            } else if (tabId === 'admin') {
+                if (!currentUser || currentUser.role !== 'admin') {
+                    showToast('ส่วนนี้สำหรับผู้ดูแลหอพัก (Admin) เท่านั้น กรุณากดปุ่ม Demo Admin', false);
+                    demoLogin('admin@dormitory.com', 'admin1234');
+                    return;
+                }
+                document.getElementById('viewAdmin').classList.add('active');
+                document.getElementById('tabAdminBtn').classList.add('active');
+                loadAdminDashboard();
+            }
+        }
+
+        // Auth management
+        async function checkAuth() {
+            if (!currentToken) {
+                renderAuthUI(null);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/me`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.user;
+                    renderAuthUI(currentUser);
+                } else {
+                    logout(false);
+                }
+            } catch (e) {
+                renderAuthUI(null);
+            }
+        }
+
+        function renderAuthUI(user) {
+            const container = document.getElementById('authWidget');
+            if (!user) {
+                container.innerHTML = `
+                    <button class="btn-demo" onclick="demoLogin('admin@dormitory.com', 'admin1234')">
+                        <span class="material-icons" style="font-size:14px;">key</span> Demo Admin
+                    </button>
+                    <button class="btn-demo" onclick="demoLogin('user@dormitory.com', 'user1234')">
+                        <span class="material-icons" style="font-size:14px;">person</span> Demo Student
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="font-size: 12px; text-align: right;">
+                        <span style="font-weight: 700; color: var(--text-primary);">${user.name}</span>
+                        <span style="display:block; font-size: 10px; color: var(--primary); text-transform: uppercase;">[${user.role}]</span>
+                    </div>
+                    <button class="btn-logout" onclick="logout(true)">
+                        <span class="material-icons" style="font-size:14px; vertical-align:middle;">logout</span>
+                    </button>
+                `;
+            }
+        }
+
+        async function demoLogin(email, password) {
+            try {
+                const res = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('dorm_token', currentToken);
+                    renderAuthUI(currentUser);
+                    showToast(`เข้าสู่ระบบสำเร็จในฐานะ: ${currentUser.name}`);
+                    if (currentUser.role === 'admin') {
+                        switchTab('admin');
+                    } else {
+                        switchTab('rooms');
+                    }
+                } else {
+                    showToast(data.message || 'เข้าสู่ระบบไม่สำเร็จ', false);
+                }
+            } catch (e) {
+                showToast('เชื่อมต่อ API ไม่สำเร็จ', false);
+            }
+        }
+
+        async function logout(callApi = true) {
+            if (callApi && currentToken) {
+                try {
+                    await fetch(`${API_BASE}/logout`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    });
+                } catch(e) {}
+            }
+            currentUser = null;
+            currentToken = '';
+            localStorage.removeItem('dorm_token');
+            renderAuthUI(null);
+            showToast('ออกจากระบบเรียบร้อยแล้ว');
+            switchTab('rooms');
+        }
+
+        // Room Types
+        async function loadRoomTypes() {
+            try {
+                const res = await fetch(`${API_BASE}/room-types`);
+                const data = await res.json();
+                if (data.success) {
+                    roomTypesCache = data.data;
+                    const filterSelect = document.getElementById('filterType');
+                    const addSelect = document.getElementById('addRoomTypeId');
+
+                    filterSelect.innerHTML = '<option value="">ทุกประเภทห้อง</option>';
+                    addSelect.innerHTML = '';
+
+                    roomTypesCache.forEach(t => {
+                        filterSelect.innerHTML += `<option value="${t.id}">${t.name} (฿${parseFloat(t.monthly_rate).toLocaleString()})</option>`;
+                        addSelect.innerHTML += `<option value="${t.id}">${t.name} (฿${parseFloat(t.monthly_rate).toLocaleString()})</option>`;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // Rooms Listing
+        async function loadRooms() {
+            const container = document.getElementById('roomsContainer');
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary); grid-column: 1/-1;">กำลังโหลดข้อมูล...</div>';
+
+            const type = document.getElementById('filterType').value;
+            const status = document.getElementById('filterStatus').value;
+
+            let url = `${API_BASE}/rooms?`;
+            if (type) url += `room_type_id=${type}&`;
+            if (status) url += `status=${status}&`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.success && data.data.length > 0) {
+                    container.innerHTML = data.data.map(r => {
+                        let statusClass = 'status-available';
+                        let statusText = 'ว่าง (Available)';
+                        let canBook = true;
+
+                        if (r.status === 'occupied') {
+                            statusClass = 'status-occupied';
+                            statusText = 'มีผู้เช่า (Occupied)';
+                            canBook = false;
+                        } else if (r.status === 'maintenance') {
+                            statusClass = 'status-maintenance';
+                            statusText = 'ซ่อมบำรุง (Maintenance)';
+                            canBook = false;
+                        }
+
+                        return `
+                            <div class="room-card">
+                                <div>
+                                    <div class="room-header">
+                                        <div>
+                                            <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;">ชั้น ${r.floor}</span>
+                                            <div class="room-number">ห้อง ${r.room_number}</div>
+                                        </div>
+                                        <span class="badge-status ${statusClass}">${statusText}</span>
+                                    </div>
+                                    <div class="room-body">
+                                        <div style="color: var(--text-secondary); font-size: 11px;">ประเภทห้องพัก</div>
+                                        <div style="font-weight: 600; color: var(--text-primary);">${r.room_type?.name || '-'}</div>
+                                        <div class="room-price">฿${parseFloat(r.room_type?.monthly_rate || 0).toLocaleString()} <span style="font-size:11px; color: var(--text-secondary); font-weight: normal;">/ เดือน</span></div>
+                                        <p style="color: var(--text-secondary); font-size: 12px; margin-top: 8px; line-height: 1.4;">${r.description || 'ห้องพักสะดวกสบาย พร้อมสิ่งอำนวยความสะดวกครบ'}</p>
+                                    </div>
+                                </div>
+                                <div style="padding: 16px; pt: 0;">
+                                    <button class="btn-action" ${!canBook ? 'disabled' : ''} onclick="openBookingModal(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+                                        <span class="material-icons" style="font-size: 16px;">bookmark_add</span> ${canBook ? 'จองห้องนี้' : 'ไม่สามารถจองได้'}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary); grid-column: 1/-1;">ไม่พบห้องพักที่ตรงกับเงื่อนไข</div>';
+                }
+            } catch(e) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger); grid-column: 1/-1;">เกิดข้อผิดพลาดในการโหลดข้อมูลห้องพัก</div>';
+            }
+        }
+
+        // Booking Modal
+        function openBookingModal(room) {
+            if (!currentUser) {
+                showToast('กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก (กด Demo Student ได้เลย)', false);
+                demoLogin('user@dormitory.com', 'user1234');
+                return;
+            }
+            selectedRoomForBooking = room;
+            document.getElementById('modalRoomNum').innerText = room.room_number;
+            document.getElementById('modalRoomType').innerText = room.room_type?.name || '-';
+            document.getElementById('modalRoomRate').innerText = parseFloat(room.room_type?.monthly_rate || 0).toLocaleString();
+            document.getElementById('bookingModal').classList.add('open');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
+        async function submitBooking() {
+            if (!selectedRoomForBooking) return;
+            const date = document.getElementById('bookCheckInDate').value;
+            if (!date) {
+                showToast('กรุณาระบุวันที่เริ่มเข้าพัก', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        room_id: selectedRoomForBooking.id,
+                        check_in_date: date
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('bookingModal');
+                    showToast(`ยื่นจองสำเร็จ! รหัสสัญญา: ${data.data.tracking_code}`);
+                    switchTab('my-bookings');
+                } else {
+                    showToast(data.message || 'การจองล้มเหลว', false);
+                }
+            } catch(e) {
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', false);
+            }
+        }
+
+        // Track Contract
+        function quickTrack(code) {
+            document.getElementById('trackInput').value = code;
+            searchContract();
+        }
+
+        async function searchContract() {
+            const code = document.getElementById('trackInput').value.trim();
+            if (!code) {
+                showToast('กรุณาระบุรหัสสัญญา', false);
+                return;
+            }
+
+            const container = document.getElementById('trackResultContainer');
+            container.innerHTML = '<div class="card" style="text-align:center; padding: 30px;">กำลังค้นหาข้อมูล...</div>';
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings/${code}`);
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const b = data.data;
+                    let badgeColor = '#16a34a';
+                    let statusTitle = 'เข้าพักอยู่ (Active Lease)';
+                    if (b.status === 'pending') { badgeColor = '#d97706'; statusTitle = 'รออนุมัติ (Pending)'; }
+                    if (b.status === 'completed') { badgeColor = '#64748b'; statusTitle = 'สิ้นสุดสัญญา (Completed)'; }
+                    if (b.status === 'cancelled') { badgeColor = '#dc2626'; statusTitle = 'ยกเลิก (Cancelled)'; }
+
+                    container.innerHTML = `
+                        <div class="card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--outline); padding-bottom:16px; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+                                <div>
+                                    <span style="font-size:11px; color:var(--text-secondary);">รหัสสัญญา / TRACKING CODE</span>
+                                    <div style="font-size:20px; font-weight:700; color:var(--primary); font-family:monospace;">${b.tracking_code}</div>
+                                </div>
+                                <span style="background:${badgeColor}20; color:${badgeColor}; border:1px solid ${badgeColor}40; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700;">
+                                    ${statusTitle}
+                                </span>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+                                <div style="background:var(--surface-variant); padding:16px; border-radius:12px;">
+                                    <h4 style="font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-primary);"><span class="material-icons" style="font-size:16px; vertical-align:middle; color:var(--primary);">meeting_room</span> ข้อมูลห้องพัก</h4>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>หมายเลขห้อง:</strong> ห้อง ${b.room?.room_number || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>ประเภท:</strong> ${b.room?.room_type?.name || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>ชั้น:</strong> ชั้น ${b.room?.floor || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>อัตราค่าเช่า:</strong> <span style="color:var(--primary); font-weight:700;">฿${parseFloat(b.room?.room_type?.monthly_rate || 0).toLocaleString()}</span> บาท/เดือน</p>
+                                </div>
+
+                                <div style="background:var(--surface-variant); padding:16px; border-radius:12px;">
+                                    <h4 style="font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-primary);"><span class="material-icons" style="font-size:16px; vertical-align:middle; color:var(--primary);">person</span> ข้อมูลผู้เช่า</h4>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>ชื่อผู้เช่า:</strong> ${b.user?.name || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>เบอร์โทรติดต่อ:</strong> ${b.user?.phone || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>อีเมล:</strong> ${b.user?.email || '-'}</p>
+                                    <p style="font-size:13px; margin-bottom:6px;"><strong>วันที่เริ่มเข้าพัก:</strong> ${b.check_in_date || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="card" style="text-align:center; padding:30px; color:var(--danger);">${data.message || 'ไม่พบสัญญาเช่าด้วยรหัสนี้'}</div>`;
+                }
+            } catch(e) {
+                container.innerHTML = '<div class="card" style="text-align:center; padding:30px; color:var(--danger);">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์</div>';
+            }
+        }
+
+        // My Bookings
+        async function loadMyBookings() {
+            if (!currentUser) {
+                document.getElementById('myBookingsTableBody').innerHTML = `
+                    <tr><td colspan="6" style="text-align:center; padding: 24px; color: var(--text-secondary);">
+                        กรุณาเข้าสู่ระบบเพื่อดูข้อมูลสัญญาของคุณ (กดปุ่ม Demo Student ด้านบน)
+                    </td></tr>
+                `;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/my-bookings`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const data = await res.json();
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('myBookingsTableBody').innerHTML = data.data.map(b => `
+                        <tr>
+                            <td style="font-family:monospace; font-weight:700; color:var(--primary);">${b.tracking_code}</td>
+                            <td style="font-weight:700;">ห้อง ${b.room?.room_number || '-'}</td>
+                            <td>${b.room?.room_type?.name || '-'}</td>
+                            <td style="font-weight:700; color:#16a34a;">฿${parseFloat(b.room?.room_type?.monthly_rate || 0).toLocaleString()}</td>
+                            <td>${b.check_in_date}</td>
+                            <td>
+                                <span class="badge-status ${b.status === 'active' ? 'status-available' : (b.status === 'pending' ? 'status-maintenance' : 'status-occupied')}">
+                                    ${b.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('myBookingsTableBody').innerHTML = `
+                        <tr><td colspan="6" style="text-align:center; padding: 24px; color: var(--text-secondary);">
+                            คุณยังไม่มีประวัติการจองห้องพัก
+                        </td></tr>
+                    `;
+                }
+            } catch(e) {}
+        }
+
+        // Admin Dashboard
+        async function loadAdminDashboard() {
+            try {
+                // Load stats
+                const statRes = await fetch(`${API_BASE}/stats`);
+                const statData = await statRes.json();
+                if (statData.success) {
+                    const s = statData.data;
+                    document.getElementById('adminStatsGrid').innerHTML = `
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">ห้องทั้งหมด</div>
+                                <div class="stat-val" style="color:var(--primary);">${s.total_rooms}</div>
+                            </div>
+                            <span class="material-icons" style="font-size:32px; color:var(--primary);">apartment</span>
+                        </div>
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">ห้องว่างพร้อมจอง</div>
+                                <div class="stat-val" style="color:#16a34a;">${s.available_rooms}</div>
+                            </div>
+                            <span class="material-icons" style="font-size:32px; color:#16a34a;">meeting_room</span>
+                        </div>
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">มีผู้พักอยู่</div>
+                                <div class="stat-val" style="color:#dc2626;">${s.occupied_rooms}</div>
+                            </div>
+                            <span class="material-icons" style="font-size:32px; color:#dc2626;">person</span>
+                        </div>
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">สัญญาเช่ารออนุมัติ</div>
+                                <div class="stat-val" style="color:#d97706;">${s.pending_bookings}</div>
+                            </div>
+                            <span class="material-icons" style="font-size:32px; color:#d97706;">pending_actions</span>
+                        </div>
+                    `;
+                }
+
+                // Load all rooms & bookings for admin
+                const roomsRes = await fetch(`${API_BASE}/rooms`);
+                const roomsData = await roomsRes.json();
+
+                // Load sample bookings
+                const samples = ['DORM-2026001', 'DORM-2026002', 'DORM-2026003'];
+                const bookingsList = [];
+                for (let code of samples) {
+                    try {
+                        const bRes = await fetch(`${API_BASE}/bookings/${code}`);
+                        const bData = await bRes.json();
+                        if (bData.success) bookingsList.push(bData.data);
+                    } catch(e) {}
+                }
+
+                document.getElementById('adminBookingsTableBody').innerHTML = bookingsList.map(b => `
+                    <tr>
+                        <td style="font-family:monospace; font-weight:700; color:var(--primary);">${b.tracking_code}</td>
+                        <td style="font-weight:700;">ห้อง ${b.room?.room_number || '-'}</td>
+                        <td>${b.user?.name || '-'}</td>
+                        <td>${b.user?.phone || '-'}</td>
+                        <td>${b.check_in_date}</td>
+                        <td>
+                            <span class="badge-status ${b.status === 'active' ? 'status-available' : (b.status === 'pending' ? 'status-maintenance' : 'status-occupied')}">
+                                ${b.status}
+                            </span>
+                        </td>
+                        <td>
+                            <select onchange="updateBookingStatus(${b.id}, this.value)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--outline); font-size:11px;">
+                                <option value="pending" ${b.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="active" ${b.status === 'active' ? 'selected' : ''}>Active</option>
+                                <option value="completed" ${b.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                <option value="cancelled" ${b.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch(e) {}
+        }
+
+        async function updateBookingStatus(id, newStatus) {
+            try {
+                const res = await fetch(`${API_BASE}/bookings/${id}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('อัปเดตสถานะสัญญาสำเร็จ');
+                    loadAdminDashboard();
+                } else {
+                    showToast(data.message || 'อัปเดตล้มเหลว', false);
+                }
+            } catch(e) {
+                showToast('เกิดข้อผิดพลาดในการอัปเดต', false);
+            }
+        }
+
+        function openAddRoomModal() {
+            document.getElementById('addRoomModal').classList.add('open');
+        }
+
+        async function submitAddRoom() {
+            const room_number = document.getElementById('addRoomNum').value.trim();
+            const room_type_id = document.getElementById('addRoomTypeId').value;
+            const floor = document.getElementById('addRoomFloor').value;
+            const status = document.getElementById('addRoomStatus').value;
+            const description = document.getElementById('addRoomDesc').value.trim();
+
+            if (!room_number) {
+                showToast('กรุณาระบุเลขห้อง', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/rooms`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ room_number, room_type_id, floor, status, description })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeModal('addRoomModal');
+                    showToast(`เพิ่มห้อง ${room_number} สำเร็จ!`);
+                    loadAdminDashboard();
+                    loadRooms();
+                } else {
+                    showToast(data.message || 'เพิ่มห้องพักล้มเหลว', false);
+                }
+            } catch(e) {
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', false);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{
+  "tables_count": 5,
+  "total_fields": 44,
+  "tables": {
+    "users": {
+      "count": 10,
+      "fields": [
+        "id",
+        "name",
+        "email",
+        "password",
+        "phone",
+        "role",
+        "created_at",
+        "student_code",
+        "faculty",
+        "major"
+      ]
+    },
+    "room_types": {
+      "count": 7,
+      "fields": [
+        "id",
+        "name",
+        "monthly_rate",
+        "created_at",
+        "description",
+        "capacity",
+        "deposit_amount"
+      ]
+    },
+    "rooms": {
+      "count": 8,
+      "fields": [
+        "id",
+        "room_number",
+        "room_type_id",
+        "floor",
+        "status",
+        "description",
+        "created_at",
+        "building_id"
+      ]
+    },
+    "bookings": {
+      "count": 11,
+      "fields": [
+        "id",
+        "tracking_code",
+        "user_id",
+        "room_id",
+        "check_in_date",
+        "status",
+        "check_out_date",
+        "monthly_rate",
+        "deposit_amount",
+        "notes",
+        "created_at"
+      ]
+    },
+    "buildings": {
+      "count": 8,
+      "fields": [
+        "id",
+        "building_code",
+        "name",
+        "address",
+        "total_floors",
+        "contact_phone",
+        "description",
+        "created_at"
+      ]
+    }
+  }
+}

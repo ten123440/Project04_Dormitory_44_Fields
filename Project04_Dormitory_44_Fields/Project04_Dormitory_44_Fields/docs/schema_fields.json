@@ -1,0 +1,56 @@
+{
+  "users": [
+    "id",
+    "name",
+    "email",
+    "password",
+    "phone",
+    "role",
+    "created_at",
+    "student_code",
+    "faculty",
+    "major"
+  ],
+  "room_types": [
+    "id",
+    "name",
+    "monthly_rate",
+    "created_at",
+    "description",
+    "capacity",
+    "deposit_amount"
+  ],
+  "rooms": [
+    "id",
+    "room_number",
+    "room_type_id",
+    "floor",
+    "status",
+    "description",
+    "created_at",
+    "building_id"
+  ],
+  "bookings": [
+    "id",
+    "tracking_code",
+    "user_id",
+    "room_id",
+    "check_in_date",
+    "status",
+    "check_out_date",
+    "monthly_rate",
+    "deposit_amount",
+    "notes",
+    "created_at"
+  ],
+  "buildings": [
+    "id",
+    "building_code",
+    "name",
+    "address",
+    "total_floors",
+    "contact_phone",
+    "description",
+    "created_at"
+  ]
+}
